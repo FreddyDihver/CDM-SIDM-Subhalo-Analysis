@@ -12,6 +12,8 @@ The main goals of this project are:
 - Fit analytical halo models (NFW and isothermal profiles)
 - Visualize subhalo structure and fit quality
 
+The main analysis and plotting pipeline is implemented in `SubhaloPlotter.py`.
+
 ---
 
 ## Features
