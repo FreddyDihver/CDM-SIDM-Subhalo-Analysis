@@ -30,8 +30,8 @@ The main goals of this project are:
 - Relaxed halo
 - More than minimum number of particle
 - Fitted NFW profile outside the trust radius
-<img width="500" height="500" alt="subhalo533" src="https://github.com/user-attachments/assets/2405c54a-93bf-422a-a3bb-479d0d16fef9" />
-<img width="500" height="500" alt="subhalo533_density" src="https://github.com/user-attachments/assets/a7753146-7294-44c9-8e01-3df7a73f1fed" />
+<img width="400" height="400" alt="subhalo533" src="https://github.com/user-attachments/assets/2405c54a-93bf-422a-a3bb-479d0d16fef9" />
+<img width="400" height="400" alt="subhalo533_density" src="https://github.com/user-attachments/assets/a7753146-7294-44c9-8e01-3df7a73f1fed" />
 
 ## References
 - Spergel & Steinhardt (2000), Phys. Rev. Lett. 84, 3760
