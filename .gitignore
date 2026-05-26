@@ -1,0 +1,15 @@
+# Python cache
+__pycache__/
+*.pyc
+
+
+# HDF5 / simulation data (VERY important)
+*.hdf5
+*.h5
+
+# Large output folders
+output/
+outputs/
+data/
+snapshots/
+fof/
