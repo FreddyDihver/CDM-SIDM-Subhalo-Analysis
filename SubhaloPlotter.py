@@ -8,7 +8,7 @@ from SubPlotFuncs import *
 # User input #
 ##############
 # Path to the directory containing the simulation data
-simulation_directory = Path(directory(str(sys.argv[0]))).parent / 'to' / 'simulation' / 'data'  # Change to appropriate path
+simulation_directory = Path(directory(str(sys.argv[0]))).parent / 'Convergence Test' / 'Lvl 8 CDM'  # Change to appropriate path
 
 # Paths to the FOF and snapshot files
 fof = simulation_directory / 'fof_subhalo_tab_001.hdf5'     # Change to appropriate FOF file if needed
@@ -24,7 +24,7 @@ HubbleParam = 0.6774    # Dimensionless Hubble parameter for the simulation
 
 isSIDM = int(input('Dark matter type CDM(0)/SIDM(1):\n'))
 crosssect = float(input('Cross section in cm^2/g:\n')) if isSIDM else None
-DataName = input('Data name for plot:\n')
+DataName = input('Data name for plot (e.g. "CDM" or "SIDM1"):\n')
 BoxSize = int(input('Boxsize in Mpc:\n')) * 1000
 particlemin = int(input('Minimum number of particles in subhalo to plot:\n'))
 RelaxParam = int(input('Relaxation criteria off(0)/on(1):\n'))
@@ -158,15 +158,14 @@ with h5py.File(fof, 'r') as foffile, h5py.File(snap, 'r') as snapfile:
         # Check if the subhalo is a SIDM subhalo, and if so, fit the density profile with a composite profile
         if isSIDM and Fiton:
             # Fit the density profile with a NFW profile for the outer part, and plot the fit along with the data
-            nfw_result, nfw_text = fit_nfw(r_bin_centers, dm_dens_mean, r200, PowerRad, Clean, HubbleParam)
+            nfw_result, nfw_text = fit_nfw(r_bin_centers, dm_dens_mean, r200, PowerRad, Clean, HubbleParam, SIDMon=isSIDM)
 
             # If the NFW fit was successful, plot the NFW profile find the isothermal fit for the inner part of the profile
             if nfw_result is not None:
-                centers, nfw_profile, _ = nfw_result
-                
+                centers, nfw_profile, _, popt_nfw = nfw_result
+
                 # Calculate the radius where the expected number of interactions is 1 or more
-                r1, _ = R1(crosssect, veldisp, age, r, [nfw_profile[0], nfw_profile[-1]])
-                print(r1)
+                r1, _ = R1(crosssect, veldisp, age, r, popt_nfw)
                 # Mask for the outer part of the profile where the NFW fit is valid, and plot the NFW profile 
                 nfw_mask = centers > r1
                 axdens.plot(centers, nfw_profile, 'g', alpha=0.5, label='NFW fit')
@@ -182,6 +181,10 @@ with h5py.File(fof, 'r') as foffile, h5py.File(snap, 'r') as snapfile:
                     axdens.plot(centers, iso_profile, 'purple', alpha=0.5, label='Iso fit')
                     axdens.plot(centers[iso_mask], iso_profile[iso_mask],
                                 'purple', linewidth=4, linestyle='dashed')
+                    # Plot r1
+                    r1plotdens = NFW(r1, popt_nfw[0], popt_nfw[1])
+                    axdens.vlines(x = r1, ymin = 0.5*r1plotdens, ymax = 2*r1plotdens,
+                                            color = 'orange', label = '$r_1$',linewidth=4,zorder=20)
                 else:
                     iso_text = []
 
@@ -195,7 +198,7 @@ with h5py.File(fof, 'r') as foffile, h5py.File(snap, 'r') as snapfile:
 
             # If the NFW fit was successful, plot the NFW profile
             if nfw_result is not None:
-                centers, nfw_profile, nfw_mask = nfw_result
+                centers, nfw_profile, _, popt_nfw = nfw_result
                 axdens.plot(centers, nfw_profile, 'g', linewidth=4,
                             linestyle='dashed', label='NFW fit')
                 

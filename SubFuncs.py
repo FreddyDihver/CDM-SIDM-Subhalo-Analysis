@@ -110,7 +110,7 @@ def build_density_profile(r, dm_dens, nbins=40):
     # Return only the bins where the mean density is not NaN (meaning there are particles in that bin)
     valid = ~np.isnan(means)
     return centers[valid], means[valid]
-def fit_nfw(r_bin_centers, dm_dens_mean, r200, PowerRad, clean, HubbleParam) -> tuple:
+def fit_nfw(r_bin_centers, dm_dens_mean, r200, PowerRad, clean, HubbleParam, SIDMon=False) -> tuple:
     """Fit a NFW profile to the density profile of a subhalo, and return the density profile and the parameters of the fit
 
     Args:
@@ -120,6 +120,7 @@ def fit_nfw(r_bin_centers, dm_dens_mean, r200, PowerRad, clean, HubbleParam) -> 
         PowerRad (float): power radius of the subhalo
         clean (bool): if True, only plot the particle distribution without markers. Defaults to False.
         HubbleParam (float): Hubble parameter
+        SIDMon (bool, optional): if True, apply an additional mask to exclude the inner part of the profile where the NFW fit is not valid for SIDM subhalos. Defaults to False.
 
     Returns:
         tuple: A tuple containing the fitted profile and fit information
@@ -133,6 +134,9 @@ def fit_nfw(r_bin_centers, dm_dens_mean, r200, PowerRad, clean, HubbleParam) -> 
     
     # If there are not enough bins within PowerRad to perform the fit, return None and an empty list for the fit information
     mask = (r_bin_centers > PowerRad) & (r_bin_centers < 0.5 * r200)
+    if SIDMon:
+        # For SIDM subhalos, also require that the bins are outside 10% of R200 to avoid the inner part where the NFW fit is not valid
+        mask &= r_bin_centers > 0.1 * r200  
     if np.count_nonzero(mask) < 3:
         return None, []
 
@@ -157,7 +161,7 @@ def fit_nfw(r_bin_centers, dm_dens_mean, r200, PowerRad, clean, HubbleParam) -> 
             fr'  $\rho_0$ = {popt[0]:.1E}',
             fr'  $R_s$ = {popt[1]:.1E}'
         ]
-        return (r_bin_centers, profile, mask), info
+        return (r_bin_centers, profile, mask, popt), info
     # If the fit fails, return None and an empty list for the fit information
     except (ValueError, ZeroDivisionError):
         return None, []
