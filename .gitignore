@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 
 
-# HDF5 / simulation data (VERY important)
+# HDF5 / simulation data
 *.hdf5
 *.h5
 
