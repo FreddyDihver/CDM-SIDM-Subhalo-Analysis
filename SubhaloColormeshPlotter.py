@@ -35,7 +35,7 @@ Clean = int(input('Keep figures clean no(0)/yes(1):\n'))
 c1, c2 = 0, 1
 
 ###################
-# Data processing #
+# Data processing # 
 ###################
 with h5py.File(fof, 'r') as foffile, h5py.File(snap, 'r') as snapfile:
     # Load data from the FOF and snapshot files
