@@ -12,7 +12,7 @@ The main goals of this project are:
 - Fit analytical halo models (NFW and isothermal profiles)
 - Visualize subhalo structure and fit quality
 
-The main analysis and plotting pipeline is implemented in `SubhaloPlotter.py`. An alternative color mesh plot for the 2D particle distribution only is implemented at `SubhaloColorMeshPlotter`.
+The main analysis and plotting pipeline is implemented in `SubhaloPlotter.py`. An alternative color mesh plot for the 2D particle distribution only is implemented at `SubhaloColorMeshPlotter`. 
 
 ---
 
