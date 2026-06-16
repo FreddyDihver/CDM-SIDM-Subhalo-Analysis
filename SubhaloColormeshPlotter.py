@@ -4,7 +4,7 @@ import h5py
 from SubFuncs import *
 from SubPlotFuncs import *
 
-##############
+############## 
 # User input #
 ##############
 # Path to the directory containing the simulation data
