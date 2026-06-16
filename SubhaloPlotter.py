@@ -8,7 +8,7 @@ from SubPlotFuncs import *
 # User input #
 ##############
 # Path to the directory containing the simulation data
-simulation_directory = Path(directory(str(sys.argv[0]))).parent / 'Convergence Test' / 'Lvl 8 CDM'  # Change to appropriate path
+simulation_directory = Path(directory(str(sys.argv[0]))).parent / 'Path' / 'To' / 'Simulation' / 'Data'  # Change to appropriate path
 
 # Paths to the FOF and snapshot files
 fof = simulation_directory / 'fof_subhalo_tab_001.hdf5'     # Change to appropriate FOF file if needed

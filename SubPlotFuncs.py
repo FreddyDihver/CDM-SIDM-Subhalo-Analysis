@@ -1,6 +1,7 @@
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LogNorm
 
 ##############################
 # Subhalo plotting functions #
@@ -93,3 +94,92 @@ def info_text(num_particles, group_id, m200, virratio, relax):
         f'Virial ratio = {virratio:.4f}\n'
         f'Relaxation (rel to R200): {relax:.4f}'
     )
+
+def colorbar_labels(ticks)->list:
+    """Create formatted colorbar labels for surface density.
+
+    Args: 
+        ticks (array-like): Array of tick values for the colorbar.
+
+    Returns:
+        list: A list of formatted label strings.
+    """
+    labels = []
+
+    for i, tick in enumerate(ticks):
+        exponent = int(np.log10(tick))
+        coefficient = round(tick / 10**exponent, 1)
+
+        if i == 0:
+            labels.append(
+                fr'$\leq {coefficient}\cdot 10^{{{exponent}}} '
+                r'M_\odot/kpc^2$'
+            )
+        else:
+            labels.append(fr'$10^{{{exponent}}} M_\odot/kpc^2$')
+
+    return labels
+
+
+def plot_subhalo_colormesh(coord, CM, MaxPot, pmass, r200, clean, c1=0, c2=1)->tuple:
+    """Plot a subhalo as a projected surface-density colormesh.
+    Args:
+        coord (ndarray): Array of particle coordinates
+        CM (ndarray): Center of mass position of the subhalo
+        MaxPot (ndarray): Position of the particle with the extremum potential in the subhalo
+        pmass (float): Particle mass
+        r200 (float): Virial radius of the subhalo
+        clean (bool): If True, only plot the particle distribution without markers. Defaults to False.
+        c1 (int, optional): Vertical axis (0,1,2). Defaults to 0.
+        c2 (int, optional): Horizontal axis (0,1,2). Defaults to 1.
+
+    Returns:
+        tuple: A tuple containing the figure and axes for further plotting if needed.
+    """
+    plt.style.use('dark_background')
+    fig = plt.figure(figsize=(8, 6.9))
+    ax = plt.axes([0.1, 0.1, 0.87, 0.87])
+
+    nbins = max(200, int(len(coord) // 1e4))
+    count_grid, xedges, yedges = np.histogram2d(coord[:, c1], coord[:, c2], nbins)
+
+    dx = (xedges[-1] - xedges[0]) / nbins
+    dy = (yedges[-1] - yedges[0]) / nbins
+    cellarea = dx * dy
+    weights = np.full(len(coord), pmass / cellarea)
+
+    density_grid, _, _, im = ax.hist2d(
+        coord[:, c1],
+        coord[:, c2],
+        nbins,
+        weights=weights,
+        cmap=plt.cm.CMRmap,
+        cmin=1,
+        norm=LogNorm(),
+    )
+
+    finite_density = density_grid[np.isfinite(density_grid) & (density_grid > 0)]
+    if len(finite_density) > 0:
+        ticks = np.append(finite_density.min(), np.logspace(7, 12, num=6))
+        cbar = fig.colorbar(im, ax=ax, ticks=ticks)
+        cbar.ax.set_yticklabels(colorbar_labels(ticks), fontsize=14)
+
+    if not clean:
+        ax.scatter(CM[c1], CM[c2], marker='x', c='r')
+        ax.scatter(MaxPot[c1], MaxPot[c2], marker='x', c='b')
+
+        try:
+            theta = np.linspace(0, 2 * np.pi, 1000)
+            ax.plot(r200 * np.cos(theta) + MaxPot[c1],
+                    r200 * np.sin(theta) + MaxPot[c2])
+        except TypeError:
+            pass
+
+    ax.set_xlabel('x-coordinate (kpc)', fontsize=16)
+    ax.set_ylabel('y-coordinate (kpc)', fontsize=16)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    ax.tick_params(axis='x', labelrotation=45)
+    plt.axis('equal')
+
+    return fig, ax
